@@ -56,7 +56,3 @@ The names it returns are a starting point, not a result. Read them against the p
 - **`gamma` (K-Prototypes)** — controls how much categorical dissimilarity counts against numeric distance. The default is derived from the data, but there is a dedicated cell that sweeps candidate values and reports the resulting Cramér's V per variable, which is a more useful check than cost alone.
 - **`entropy_floor`** — raise it to be stricter about accepting LCA solutions; lower it to prefer LCA more often.
 - **`k_range`** — widen it if the elbow or the BIC minimum lands at the edge of the current range, which usually means the true optimum is outside it.
-
-## Data
-
-No survey data is included in this repository. The `.gitignore` excludes spreadsheet and CSV files so respondent-level data is not committed by accident. Point the loading cell at a local copy of the export to run the pipeline.

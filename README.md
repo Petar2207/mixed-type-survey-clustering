@@ -43,17 +43,6 @@ Both solutions are scored on the same raw variables using Cramér's V, plus a no
 
 Install the dependencies from `requirements.txt`: `pandas`, `numpy`, `scikit-learn`, `scipy`, `matplotlib`, `seaborn`, `kmodes`, `stepmix`, `kneed` and `openpyxl`.
 
-## Usage
-
-Two files are needed in the working directory:
-
-- the survey export, one row per respondent, with columns named by question ID
-- `question.xlsx`, the metadata, with `QuestionID`, `Type`, `Options` and `Text` columns, where `Options` is a separator-delimited list of code-and-label pairs
-
-Configuration happens in two dictionaries near the top of the clustering section. `cluster_models` maps each dimension name to the list of question IDs that belong to it. `cluster_method_map` maps the same dimension names to the distance-based method to use — K-Prototypes for blocks that mix ordinal and categorical items, K-Modes for purely categorical ones, K-Means where everything is numeric.
-
-With those set, the run-all cell loops over every dimension, calling `run_dimension()` and `build_dimension_report()` in turn and writing the winning labels back onto `df_proc`. A single dimension can also be run on its own, with the scan range, entropy floor and fallback `k` overridable per call.
-
 ## Naming the clusters
 
 Clustering produces integers. Turning cluster 3 into something a stakeholder can act on is normally manual work: read a crosstab, squint at the percentages, invent a name, repeat for every cluster in every dimension. `build_combined_naming_prompt()` automates the tedious half of that.
@@ -61,14 +50,6 @@ Clustering produces integers. Turning cluster 3 into something a stakeholder can
 It walks every dimension and builds one prompt containing, per cluster, the size and share, the mean of each ordinal variable, and the dominant categories of each categorical variable. Crucially, question IDs and option codes are decoded back to their original survey wording through `question_map` and `option_map`, so the prompt reads as real questions and answers rather than bare numeric codes. The requested output format is ready-to-paste Python: a short-name dict, a one-sentence-description dict and the mapping line for each dimension, so the result drops straight back into the notebook with no retyping.
 
 The names it returns are a starting point, not a result. Read them against the profile output before adopting them, since a plausible-sounding label can paper over a cluster that is not actually distinct.
-
-### Making the prompt sharper
-
-Each variable line currently shows the top categories *within* a cluster. When one category dominates the whole sample, every cluster's top three look alike and the model hedges — descriptions like "the majority default profile" are the tell. Ranking by lift against the sample baseline instead makes the contrast explicit: divide each cluster's share for a category by that category's share across all respondents, so 1.0 means the cluster matches the sample average.
-
-Printing both the share and the lift is what makes a label decisive. A 41% branch-visit rate against a 15% baseline reads as clearly branch-oriented; the raw 41% on its own reads as a minority and invites a vague name.
-
-Two smaller adjustments in the same place: collapse multi-select dummy columns to the share of positives only, since printing the complement wastes prompt space, and truncate long question text to roughly 80 characters so six dimensions still fit in one prompt.
 
 ## Tuning notes
 
